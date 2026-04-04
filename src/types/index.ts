@@ -16,6 +16,7 @@ export interface IAbout {
   bio: string;
   profileImage: string;
   resumeUrl: string;
+  resumeTemplate: ResumeTemplateKey;
   stats: { label: string; value: string }[];
   socialLinks: {
     github: string;
@@ -28,6 +29,8 @@ export interface IAbout {
   createdAt: string;
   updatedAt: string;
 }
+
+export type ResumeTemplateKey = "classic" | "compact" | "timeline";
 
 export interface IProject {
   _id: string;

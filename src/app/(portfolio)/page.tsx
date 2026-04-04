@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { connectDB } from "@/lib/db";
-import About from "@/models/About";
 import Project from "@/models/Project";
 import Skill from "@/models/Skill";
 import Experience from "@/models/Experience";
@@ -8,6 +7,7 @@ import Education from "@/models/Education";
 import Certification from "@/models/Certification";
 import Contact from "@/models/Contact";
 import Seo from "@/models/Seo";
+import { getLatestAboutLean } from "@/lib/about";
 import { HeroSection } from "@/components/portfolio/hero-section";
 import { AboutSection } from "@/components/portfolio/about-section";
 import { SkillsSection } from "@/components/portfolio/skills-section";
@@ -76,7 +76,7 @@ export default async function HomePage() {
 
     [about, projects, skills, experiences, education, certifications, contact] =
       await Promise.all([
-        About.findOne().lean(),
+        getLatestAboutLean(),
         Project.find({ status: "published" }).sort({ order: 1, createdAt: -1 }).lean(),
         Skill.find().sort({ order: 1 }).lean(),
         Experience.find().sort({ order: 1, startDate: -1 }).lean(),

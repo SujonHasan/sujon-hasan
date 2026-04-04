@@ -76,6 +76,7 @@ export const aboutSchema = z.object({
   bio: z.string().min(1, "Bio is required"),
   profileImage: z.string().optional().default(""),
   resumeUrl: z.string().optional().default(""),
+  resumeTemplate: z.enum(["classic", "compact", "timeline"]).optional().default("classic"),
   heroDescription: z.string().optional().default(""),
   stats: z
     .array(

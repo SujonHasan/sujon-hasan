@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
+import { saveAboutSingleton } from "@/lib/about";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-import About from "@/models/About";
 import Project from "@/models/Project";
 import Skill from "@/models/Skill";
 import Experience from "@/models/Experience";
@@ -41,31 +41,28 @@ async function seed() {
     }
 
     // About
-    await About.findOneAndUpdate(
-      {},
-      {
-        name: "Md. Sujon Hasan",
-        tagline: "Full Stack Developer (MERN Stack)",
-        bio: "<p>I am a passionate Full Stack Developer specializing in the MERN stack. I love building web applications that are fast, responsive, and user-friendly. With a strong foundation in both frontend and backend technologies, I create seamless digital experiences from concept to deployment.</p><p>I am always eager to learn new technologies and take on challenging projects that push the boundaries of what's possible on the web.</p>",
-        heroDescription: "Building modern web applications with cutting-edge technologies. Specializing in React, Node.js, and MongoDB.",
-        profileImage: "",
-        resumeUrl: "",
-        stats: [
-          { label: "Years Experience", value: "3+" },
-          { label: "Projects Completed", value: "20+" },
-          { label: "Happy Clients", value: "15+" },
-          { label: "Technologies", value: "25+" },
-        ],
-        socialLinks: {
-          github: "https://github.com/sujonhasan",
-          linkedin: "https://linkedin.com/in/sujonhasan",
-          twitter: "",
-          facebook: "https://facebook.com/sujonhasan",
-          website: "",
-        },
+    await saveAboutSingleton({
+      name: "Md. Sujon Hasan",
+      tagline: "Full Stack Developer (MERN Stack)",
+      bio: "<p>I am a passionate Full Stack Developer specializing in the MERN stack. I love building web applications that are fast, responsive, and user-friendly. With a strong foundation in both frontend and backend technologies, I create seamless digital experiences from concept to deployment.</p><p>I am always eager to learn new technologies and take on challenging projects that push the boundaries of what's possible on the web.</p>",
+      heroDescription: "Building modern web applications with cutting-edge technologies. Specializing in React, Node.js, and MongoDB.",
+      profileImage: "",
+      resumeUrl: "",
+      resumeTemplate: "classic",
+      stats: [
+        { label: "Years Experience", value: "3+" },
+        { label: "Projects Completed", value: "20+" },
+        { label: "Happy Clients", value: "15+" },
+        { label: "Technologies", value: "25+" },
+      ],
+      socialLinks: {
+        github: "https://github.com/sujonhasan",
+        linkedin: "https://linkedin.com/in/sujonhasan",
+        twitter: "",
+        facebook: "https://facebook.com/sujonhasan",
+        website: "",
       },
-      { upsert: true }
-    );
+    });
 
     // Skills
     const skills = [

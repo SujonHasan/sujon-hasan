@@ -22,8 +22,7 @@ export function HeroSection({ about }: HeroSectionProps) {
   const tagline = about?.tagline || "";
   const heroDescription = about?.heroDescription || "";
   const socialLinks = about?.socialLinks;
-  const resumeUrl = about?.resumeUrl;
-  const safeResumeUrl = sanitizeUrl(resumeUrl);
+  const generatedResumeUrl = "/api/resume/download";
 
   const nameChars = name.split("");
 
@@ -143,16 +142,12 @@ export function HeroSection({ about }: HeroSectionProps) {
           >
             View Projects
           </Link>
-          {safeResumeUrl && (
-            <a
-              href={safeResumeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 rounded-lg border border-border font-medium hover:bg-accent transition-colors"
-            >
-              Download Resume
-            </a>
-          )}
+          <a
+            href={generatedResumeUrl}
+            className="px-8 py-3 rounded-lg border border-border font-medium hover:bg-accent transition-colors"
+          >
+            Download Resume
+          </a>
         </motion.div>
       </div>
 

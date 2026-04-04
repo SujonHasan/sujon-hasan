@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/portfolio/navbar";
 import { Footer } from "@/components/portfolio/footer";
 import { connectDB } from "@/lib/db";
-import About from "@/models/About";
+import { getLatestAboutLean } from "@/lib/about";
 
 export default async function PortfolioLayout({
   children,
@@ -11,7 +11,7 @@ export default async function PortfolioLayout({
   let socialLinks;
   try {
     await connectDB();
-    const about = await About.findOne().lean();
+    const about = await getLatestAboutLean();
     socialLinks = about?.socialLinks;
   } catch {
     socialLinks = undefined;

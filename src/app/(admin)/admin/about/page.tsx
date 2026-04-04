@@ -11,7 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { FormSkeleton } from "@/components/admin/loading-skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RESUME_TEMPLATES } from "@/lib/resume-templates";
 import { Loader2, Plus, Trash2 } from "lucide-react";
+import { ResumeTemplateKey } from "@/types";
 
 interface StatItem {
   label: string;
@@ -25,6 +28,7 @@ interface AboutData {
   heroDescription: string;
   profileImage: string;
   resumeUrl: string;
+  resumeTemplate: ResumeTemplateKey;
   stats: StatItem[];
   socialLinks: {
     github: string;
@@ -36,7 +40,7 @@ interface AboutData {
 }
 
 export default function AboutPage() {
-  const { data: about, isLoading: loading } = useApi<AboutData>("/api/about");
+  const { data: about, isLoading: loading, mutate } = useApi<AboutData>("/api/about");
   const { apiRequest } = useApiMutate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,6 +52,7 @@ export default function AboutPage() {
     heroDescription: "",
     profileImage: "",
     resumeUrl: "",
+    resumeTemplate: "classic",
     stats: [],
     socialLinks: {
       github: "",
@@ -67,6 +72,7 @@ export default function AboutPage() {
         heroDescription: about.heroDescription || "",
         profileImage: about.profileImage || "",
         resumeUrl: about.resumeUrl || "",
+        resumeTemplate: about.resumeTemplate || "classic",
         stats: about.stats || [],
         socialLinks: {
           github: about.socialLinks?.github || "",
@@ -83,7 +89,26 @@ export default function AboutPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await apiRequest("/api/about", "PUT", form);
+      const response = await apiRequest("/api/about", "PUT", form);
+      const saved = response.data as AboutData;
+      setForm({
+        name: saved.name || "",
+        tagline: saved.tagline || "",
+        bio: saved.bio || "",
+        heroDescription: saved.heroDescription || "",
+        profileImage: saved.profileImage || "",
+        resumeUrl: saved.resumeUrl || "",
+        resumeTemplate: saved.resumeTemplate || "classic",
+        stats: saved.stats || [],
+        socialLinks: {
+          github: saved.socialLinks?.github || "",
+          linkedin: saved.socialLinks?.linkedin || "",
+          twitter: saved.socialLinks?.twitter || "",
+          facebook: saved.socialLinks?.facebook || "",
+          website: saved.socialLinks?.website || "",
+        },
+      });
+      mutate(saved, false);
       toast({ title: "Success", description: "About section updated successfully" });
     } catch {
       // handled
@@ -155,10 +180,76 @@ export default function AboutPage() {
 
         <Card>
           <CardHeader><CardTitle>Resume</CardTitle></CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label>Resume URL</Label>
-              <Input value={form.resumeUrl} onChange={(e) => setForm({ ...form, resumeUrl: e.target.value })} />
+              <Label>Active Resume Template</Label>
+              <Select
+                value={form.resumeTemplate}
+                onValueChange={(value: ResumeTemplateKey) => setForm({ ...form, resumeTemplate: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select resume template" />
+                </SelectTrigger>
+                <SelectContent>
+                  {RESUME_TEMPLATES.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">
+                The selected template will auto-generate your resume from portfolio data and power the frontend download button.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {RESUME_TEMPLATES.map((template) => {
+                const isSelected = form.resumeTemplate === template.id;
+
+                return (
+                  <div
+                    key={template.id}
+                    className={`rounded-lg border p-4 space-y-3 ${isSelected ? "border-primary ring-1 ring-primary/30" : ""}`}
+                  >
+                    <div>
+                      <h3 className="font-semibold">{template.name}</h3>
+                      <p className="text-sm text-muted-foreground">{template.description}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant={isSelected ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setForm({ ...form, resumeTemplate: template.id })}
+                      >
+                        {isSelected ? "Selected" : "Use Template"}
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" asChild>
+                        <a
+                          href={`/api/resume/download?template=${template.id}&preview=1`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Preview PDF
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Legacy Resume URL</Label>
+              <Input
+                value={form.resumeUrl}
+                onChange={(e) => setForm({ ...form, resumeUrl: e.target.value })}
+                placeholder="Optional fallback external resume link"
+              />
+              <p className="text-sm text-muted-foreground">
+                Optional fallback only. The generated PDF template is used first.
+              </p>
             </div>
           </CardContent>
         </Card>

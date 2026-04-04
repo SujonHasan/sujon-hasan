@@ -7,6 +7,11 @@ const aboutSchema = new Schema(
     bio: { type: String, required: true },
     profileImage: { type: String, default: "" },
     resumeUrl: { type: String, default: "" },
+    resumeTemplate: {
+      type: String,
+      enum: ["classic", "compact", "timeline"],
+      default: "classic",
+    },
     heroDescription: { type: String, default: "" },
     stats: [
       {

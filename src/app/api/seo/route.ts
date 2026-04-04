@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { withAuth } from "@/lib/auth-guard";
 import { seoSchema } from "@/lib/validations";
+import { getLatestAboutQuery } from "@/lib/about";
 import Seo from "@/models/Seo";
-import About from "@/models/About";
 import Project from "@/models/Project";
 import Skill from "@/models/Skill";
 
 async function generateSeoContent() {
-  const about = await About.findOne();
+  const about = await getLatestAboutQuery();
   const projectCount = await Project.countDocuments({ status: "published" });
   const skills = await Skill.find().sort({ proficiency: -1 }).limit(5);
 

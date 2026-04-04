@@ -105,3 +105,18 @@ export function sanitizeRichText(value?: string | null) {
 
   return sanitized.trim();
 }
+
+export function stripHtml(value?: string | null) {
+  if (!value) return "";
+
+  return value
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li|h1|h2|h3|h4|h5|h6|blockquote)>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
