@@ -39,6 +39,20 @@ interface AboutData {
   };
 }
 
+function normalizeResumeTemplateValue(value: unknown): ResumeTemplateKey {
+  if (typeof value !== "string") {
+    return "classic";
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === "compact" || normalized === "timeline") {
+    return normalized;
+  }
+
+  return "classic";
+}
+
 export default function AboutPage() {
   const { data: about, isLoading: loading, mutate } = useApi<AboutData>("/api/about");
   const { apiRequest } = useApiMutate();
@@ -63,6 +77,9 @@ export default function AboutPage() {
     },
   });
 
+  const activeResumeTemplate =
+    RESUME_TEMPLATES.find((template) => template.id === form.resumeTemplate) || RESUME_TEMPLATES[0];
+
   useEffect(() => {
     if (about) {
       setForm({
@@ -72,7 +89,7 @@ export default function AboutPage() {
         heroDescription: about.heroDescription || "",
         profileImage: about.profileImage || "",
         resumeUrl: about.resumeUrl || "",
-        resumeTemplate: about.resumeTemplate || "classic",
+        resumeTemplate: normalizeResumeTemplateValue(about.resumeTemplate),
         stats: about.stats || [],
         socialLinks: {
           github: about.socialLinks?.github || "",
@@ -98,7 +115,7 @@ export default function AboutPage() {
         heroDescription: saved.heroDescription || "",
         profileImage: saved.profileImage || "",
         resumeUrl: saved.resumeUrl || "",
-        resumeTemplate: saved.resumeTemplate || "classic",
+        resumeTemplate: normalizeResumeTemplateValue(saved.resumeTemplate),
         stats: saved.stats || [],
         socialLinks: {
           github: saved.socialLinks?.github || "",
@@ -108,7 +125,7 @@ export default function AboutPage() {
           website: saved.socialLinks?.website || "",
         },
       });
-      mutate(saved, false);
+      mutate({ ...saved, resumeTemplate: normalizeResumeTemplateValue(saved.resumeTemplate) }, false);
       toast({ title: "Success", description: "About section updated successfully" });
     } catch {
       // handled
@@ -184,11 +201,16 @@ export default function AboutPage() {
             <div className="space-y-2">
               <Label>Active Resume Template</Label>
               <Select
+                key={form.resumeTemplate}
                 value={form.resumeTemplate}
-                onValueChange={(value: ResumeTemplateKey) => setForm({ ...form, resumeTemplate: value })}
+                onValueChange={(value: string) =>
+                  setForm({ ...form, resumeTemplate: normalizeResumeTemplateValue(value) })
+                }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select resume template" />
+                  <SelectValue placeholder="Select resume template">
+                    {activeResumeTemplate?.name}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {RESUME_TEMPLATES.map((template) => (
@@ -221,7 +243,9 @@ export default function AboutPage() {
                         type="button"
                         variant={isSelected ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setForm({ ...form, resumeTemplate: template.id })}
+                        onClick={() =>
+                          setForm({ ...form, resumeTemplate: normalizeResumeTemplateValue(template.id) })
+                        }
                       >
                         {isSelected ? "Selected" : "Use Template"}
                       </Button>
