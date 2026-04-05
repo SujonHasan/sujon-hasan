@@ -16,6 +16,8 @@ import {
   BarChart3,
   LogOut,
   X,
+  SlidersHorizontal,
+  Palette,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,8 @@ const navItems = [
   { href: "/admin/certifications", label: "Certifications", icon: Award },
   { href: "/admin/about", label: "About", icon: UserCircle },
   { href: "/admin/contact", label: "Contact", icon: Phone },
+  { href: "/admin/customize", label: "Section Settings", icon: SlidersHorizontal },
+  { href: "/admin/theme", label: "Theme Settings", icon: Palette },
   { href: "/admin/seo", label: "SEO Settings", icon: Search },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
 ];

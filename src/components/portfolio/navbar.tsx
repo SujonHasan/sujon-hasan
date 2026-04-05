@@ -14,17 +14,17 @@ import {
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { cn } from "@/lib/utils";
 
-const navLinks = [
-  { label: "About", href: "#about" },
-  { label: "Skills", href: "#skills" },
-  { label: "Projects", href: "#projects" },
-  { label: "Experience", href: "#experience" },
-  { label: "Education", href: "#education" },
-  { label: "Certifications", href: "#certifications" },
-  { label: "Contact", href: "#contact" },
-];
+interface NavbarLink {
+  label: string;
+  href: string;
+}
 
-export function Navbar() {
+interface NavbarProps {
+  links: NavbarLink[];
+  showThemeToggle?: boolean;
+}
+
+export function Navbar({ links, showThemeToggle = true }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [open, setOpen] = useState(false);
@@ -38,7 +38,7 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const sectionIds = navLinks.map((link) => link.href.replace("#", ""));
+    const sectionIds = links.map((link) => link.href.replace("#", ""));
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -56,7 +56,7 @@ export function Navbar() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [links]);
 
   return (
     <motion.header
@@ -79,7 +79,7 @@ export function Navbar() {
 
         {/* Desktop Nav Links */}
         <ul className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
+          {links.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
@@ -98,7 +98,7 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <ThemeToggle />
+          {showThemeToggle ? <ThemeToggle /> : null}
 
           {/* Mobile Menu */}
           <Sheet open={open} onOpenChange={setOpen}>
@@ -111,7 +111,7 @@ export function Navbar() {
             <SheetContent side="right" className="w-64">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex flex-col gap-4 mt-8">
-                {navLinks.map((link) => (
+                {links.map((link) => (
                   <a
                     key={link.href}
                     href={link.href}

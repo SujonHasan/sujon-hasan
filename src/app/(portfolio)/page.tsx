@@ -18,13 +18,20 @@ import { CertificationsSection } from "@/components/portfolio/certifications-sec
 import { ContactSection } from "@/components/portfolio/contact-section";
 import { AnalyticsTracker } from "@/components/portfolio/analytics-tracker";
 import {
+  DEFAULT_ENABLED_PORTFOLIO_SECTIONS,
+  DEFAULT_PORTFOLIO_SECTION_ORDER,
+} from "@/lib/portfolio-config";
+import { getPortfolioSettingsLean } from "@/lib/portfolio-settings";
+import {
   IAbout,
   ICertification,
   IContact,
   IEducation,
   IExperience,
+  IPortfolioSettings,
   IProject,
   ISkill,
+  PortfolioSectionKey,
 } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -70,11 +77,15 @@ export default async function HomePage() {
   let education: IEducation[] = [];
   let certifications: ICertification[] = [];
   let contact: IContact | null = null;
+  let settings: Pick<IPortfolioSettings, "enabledSections" | "sectionOrder"> = {
+    enabledSections: DEFAULT_ENABLED_PORTFOLIO_SECTIONS,
+    sectionOrder: DEFAULT_PORTFOLIO_SECTION_ORDER,
+  };
 
   try {
     await connectDB();
 
-    [about, projects, skills, experiences, education, certifications, contact] =
+    [about, projects, skills, experiences, education, certifications, contact, settings] =
       await Promise.all([
         getLatestAboutLean(),
         Project.find({ status: "published" }).sort({ order: 1, createdAt: -1 }).lean(),
@@ -83,6 +94,7 @@ export default async function HomePage() {
         Education.find().sort({ order: 1, startDate: -1 }).lean(),
         Certification.find().sort({ order: 1, issueDate: -1 }).lean(),
         Contact.findOne().lean(),
+        getPortfolioSettingsLean(),
       ]);
   } catch {
     // Render a safe empty state when the database is temporarily unavailable.
@@ -90,18 +102,35 @@ export default async function HomePage() {
 
   // Serialize Mongoose documents to plain objects
   const serialize = <T,>(data: T): T => JSON.parse(JSON.stringify(data));
+  const serializedAbout = serialize(about);
+  const serializedSkills = serialize(skills) || [];
+  const serializedProjects = serialize(projects) || [];
+  const serializedExperiences = serialize(experiences) || [];
+  const serializedEducation = serialize(education) || [];
+  const serializedCertifications = serialize(certifications) || [];
+  const serializedContact = serialize(contact);
+
+  const sectionMap: Record<PortfolioSectionKey, React.ReactNode> = {
+    hero: <HeroSection about={serializedAbout} />,
+    about: <AboutSection about={serializedAbout} />,
+    skills: <SkillsSection skills={serializedSkills} />,
+    projects: <ProjectsSection projects={serializedProjects} />,
+    experience: <ExperienceSection experiences={serializedExperiences} />,
+    education: <EducationSection education={serializedEducation} />,
+    certifications: <CertificationsSection certifications={serializedCertifications} />,
+    contact: <ContactSection contact={serializedContact} />,
+  };
+
+  const visibleSections = settings.sectionOrder.filter((sectionId) =>
+    settings.enabledSections.includes(sectionId)
+  );
 
   return (
     <>
       <AnalyticsTracker page="home" />
-      <HeroSection about={serialize(about)} />
-      <AboutSection about={serialize(about)} />
-      <SkillsSection skills={serialize(skills) || []} />
-      <ProjectsSection projects={serialize(projects) || []} />
-      <ExperienceSection experiences={serialize(experiences) || []} />
-      <EducationSection education={serialize(education) || []} />
-      <CertificationsSection certifications={serialize(certifications) || []} />
-      <ContactSection contact={serialize(contact)} />
+      {visibleSections.map((sectionId) => (
+        <div key={sectionId}>{sectionMap[sectionId]}</div>
+      ))}
     </>
   );
 }

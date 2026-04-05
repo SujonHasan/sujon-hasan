@@ -99,6 +99,39 @@ export const aboutSchema = z.object({
     .default({ github: "", linkedin: "", twitter: "", facebook: "", website: "" }),
 });
 
+const portfolioSectionSchema = z.enum([
+  "hero",
+  "about",
+  "skills",
+  "projects",
+  "experience",
+  "education",
+  "certifications",
+  "contact",
+]);
+
+export const portfolioSettingsSchema = z.object({
+  enabledSections: z.array(portfolioSectionSchema).optional().default([]),
+  sectionOrder: z.array(portfolioSectionSchema).optional().default([]),
+});
+
+const hexColorSchema = z
+  .string()
+  .regex(/^#([0-9a-fA-F]{6})$/, "Use a valid hex color like #2563eb");
+
+export const themeSettingsSchema = z.object({
+  themePreset: z.enum(["default", "minimal", "modern", "warm"]).optional().default("default"),
+  primaryColor: hexColorSchema.optional().default("#2563eb"),
+  accentColor: hexColorSchema.optional().default("#dbeafe"),
+  backgroundColor: hexColorSchema.optional().default("#ffffff"),
+  surfaceColor: hexColorSchema.optional().default("#f8fafc"),
+  textColor: hexColorSchema.optional().default("#0f172a"),
+  mutedColor: hexColorSchema.optional().default("#64748b"),
+  backgroundStyle: z.enum(["none", "glow", "grid", "dots"]).optional().default("none"),
+  radiusScale: z.enum(["soft", "rounded", "sharp"]).optional().default("rounded"),
+  showThemeToggle: z.boolean().optional().default(true),
+});
+
 export const contactSchema = z.object({
   email: z.string().email("Invalid email"),
   phone: z.string().optional().default(""),
@@ -131,6 +164,8 @@ export type ExperienceInput = z.infer<typeof experienceSchema>;
 export type EducationInput = z.infer<typeof educationSchema>;
 export type CertificationInput = z.infer<typeof certificationSchema>;
 export type AboutInput = z.infer<typeof aboutSchema>;
+export type PortfolioSettingsInput = z.infer<typeof portfolioSettingsSchema>;
+export type ThemeSettingsInput = z.infer<typeof themeSettingsSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
 export type SeoInput = z.infer<typeof seoSchema>;
 export type ContactFormInput = z.infer<typeof contactFormSchema>;

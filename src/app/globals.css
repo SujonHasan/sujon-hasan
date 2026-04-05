@@ -84,6 +84,24 @@
   }
 }
 
+[data-portfolio-background="glow"] {
+  background-image:
+    radial-gradient(circle at top left, hsl(var(--primary) / 0.12), transparent 28%),
+    radial-gradient(circle at bottom right, hsl(var(--accent) / 0.3), transparent 24%);
+}
+
+[data-portfolio-background="grid"] {
+  background-image:
+    linear-gradient(hsl(var(--border) / 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--border) / 0.35) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+[data-portfolio-background="dots"] {
+  background-image: radial-gradient(hsl(var(--border) / 0.7) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
 /* Prose styles for rich text content */
 .prose {
   @apply max-w-none;

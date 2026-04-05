@@ -31,6 +31,42 @@ export interface IAbout {
 }
 
 export type ResumeTemplateKey = "classic" | "compact" | "timeline";
+export type PortfolioSectionKey =
+  | "hero"
+  | "about"
+  | "skills"
+  | "projects"
+  | "experience"
+  | "education"
+  | "certifications"
+  | "contact";
+export type PortfolioThemePreset = "default" | "minimal" | "modern" | "warm";
+export type ThemeBackgroundStyle = "none" | "glow" | "grid" | "dots";
+export type ThemeRadiusScale = "soft" | "rounded" | "sharp";
+
+export interface IPortfolioSettings {
+  _id: string;
+  enabledSections: PortfolioSectionKey[];
+  sectionOrder: PortfolioSectionKey[];
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface IThemeSettings {
+  _id: string;
+  themePreset: PortfolioThemePreset;
+  primaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  surfaceColor: string;
+  textColor: string;
+  mutedColor: string;
+  backgroundStyle: ThemeBackgroundStyle;
+  radiusScale: ThemeRadiusScale;
+  showThemeToggle: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
 
 export interface IProject {
   _id: string;
