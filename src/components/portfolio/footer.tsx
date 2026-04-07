@@ -62,7 +62,7 @@ export function Footer({ socialLinks }: FooterProps) {
 
         {/* Copyright */}
         <p className="text-sm text-muted-foreground">
-          &copy; 2024 Md. Sujon Hasan. All rights reserved.
+          &copy; 2026 Md. Sujon Hasan. All rights reserved.
         </p>
 
         {/* Built with */}

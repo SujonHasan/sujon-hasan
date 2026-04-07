@@ -5,7 +5,7 @@ import { Upload, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth-provider";
 import { useToast } from "@/hooks/use-toast";
-import Image from "next/image";
+import { SafeImage } from "@/components/shared/safe-image";
 
 interface ImageUploadProps {
   value: string;
@@ -23,8 +23,8 @@ export function ImageUpload({ value, onChange, folder = "projects" }: ImageUploa
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Error", description: "File size must be less than 5MB", variant: "destructive" });
+    if (file.size > 4 * 1024 * 1024) {
+      toast({ title: "Error", description: "File size must be less than 4MB", variant: "destructive" });
       return;
     }
 
@@ -58,12 +58,17 @@ export function ImageUpload({ value, onChange, folder = "projects" }: ImageUploa
     <div className="space-y-2">
       {value ? (
         <div className="relative inline-block">
-          <Image
+          <SafeImage
             src={value}
             alt="Upload"
             width={200}
             height={150}
             className="rounded-lg object-cover border"
+            fallback={
+              <div className="flex h-[150px] w-[200px] items-center justify-center rounded-lg border bg-muted text-center text-xs text-muted-foreground">
+                Image unavailable. Re-upload to fix.
+              </div>
+            }
           />
           <Button
             type="button"
@@ -86,7 +91,7 @@ export function ImageUpload({ value, onChange, folder = "projects" }: ImageUploa
             <>
               <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground">Click to upload image</p>
-              <p className="text-xs text-muted-foreground mt-1">Max 5MB (JPEG, PNG, WebP)</p>
+              <p className="text-xs text-muted-foreground mt-1">Max 4MB (JPEG, PNG, WebP)</p>
             </>
           )}
         </div>

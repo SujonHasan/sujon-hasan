@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/shared/icons";
@@ -14,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { sanitizeUrl } from "@/lib/sanitize";
+import { SafeImage } from "@/components/shared/safe-image";
 
 interface ProjectsSectionProps {
   projects: IProject[];
@@ -33,11 +33,12 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 <Card className="group overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg h-full flex flex-col">
                   <div className="relative aspect-video overflow-hidden">
                     {project.thumbnail ? (
-                      <Image
+                      <SafeImage
                         src={project.thumbnail}
                         alt={project.title}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        fallback={<div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5" />}
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5" />

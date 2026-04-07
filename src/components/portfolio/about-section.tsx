@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { IAbout } from "@/types";
 import { SectionHeading } from "@/components/portfolio/section-heading";
 import { sanitizeRichText } from "@/lib/sanitize";
+import { SafeImage } from "@/components/shared/safe-image";
 import {
   MotionWrapper,
   StaggerContainer,
@@ -15,6 +15,14 @@ interface AboutSectionProps {
 }
 
 export function AboutSection({ about }: AboutSectionProps) {
+  const imageFallback = (
+    <div className="w-72 h-72 md:w-80 md:h-80 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center">
+      <span className="text-6xl font-bold text-primary/40">
+        {about?.name?.charAt(0) || "S"}
+      </span>
+    </div>
+  );
+
   return (
     <section id="about" className="py-20">
       <div className="container max-w-6xl mx-auto px-4">
@@ -26,20 +34,17 @@ export function AboutSection({ about }: AboutSectionProps) {
             <div className="flex justify-center">
               {about?.profileImage ? (
                 <div className="relative w-72 h-72 md:w-80 md:h-80 rounded-2xl overflow-hidden shadow-lg">
-                  <Image
+                  <SafeImage
                     src={about.profileImage}
                     alt={about.name || "Profile"}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 288px, 320px"
+                    fallback={imageFallback}
                   />
                 </div>
               ) : (
-                <div className="w-72 h-72 md:w-80 md:h-80 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center">
-                  <span className="text-6xl font-bold text-primary/40">
-                    {about?.name?.charAt(0) || "S"}
-                  </span>
-                </div>
+                imageFallback
               )}
             </div>
           </MotionWrapper>
