@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/portfolio/navbar";
 import { Footer } from "@/components/portfolio/footer";
+import { CursorFollower } from "@/components/shared/cursor-follower";
 import { connectDB } from "@/lib/db";
 import { getLatestAboutLean } from "@/lib/about";
 import { getPortfolioSettingsLean } from "@/lib/portfolio-settings";
@@ -62,6 +63,7 @@ export default async function PortfolioLayout({
       <style
         dangerouslySetInnerHTML={{ __html: getThemeScopedCss(themeSettings) }}
       />
+      <CursorFollower />
       <Navbar links={navLinks} showThemeToggle={showThemeToggle} />
       <main>{children}</main>
       <Footer

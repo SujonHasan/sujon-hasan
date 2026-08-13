@@ -20,8 +20,8 @@ export function AboutSection({ about }: AboutSectionProps) {
   const reduceMotion = useReducedMotion();
 
   const imageFallback = (
-    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/25 via-primary/10 to-primary/5">
-      <span className="text-7xl font-bold text-primary/40">
+    <div className="w-72 h-72 md:w-80 md:h-80 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center">
+      <span className="text-6xl font-bold text-primary/40">
         {about?.name?.charAt(0) || "S"}
       </span>
     </div>
@@ -37,44 +37,33 @@ export function AboutSection({ about }: AboutSectionProps) {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left: portrait */}
+          {/* Left: portrait, with a single square outline turning slowly
+              behind it. Same size as the photo, so its corners swing in and
+              out from behind the frame as it rotates. */}
           <MotionWrapper direction="left">
-            <div className="flex justify-center">
-              <div className="relative">
-                {/* Soft halo + slowly rotating accent ring */}
-                <div
-                  aria-hidden
-                  className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-tr from-primary/25 via-transparent to-primary/15 blur-2xl"
-                />
-                {/* Offset dashed frame drifting slowly behind the portrait —
-                    a rotating frame would sit crooked against a rounded
-                    square, so it floats instead. */}
-                <motion.div
-                  aria-hidden
-                  className="absolute -inset-3 rounded-[2rem] border border-dashed border-primary/30"
-                  animate={reduceMotion ? undefined : { y: [0, -10, 0], x: [0, 6, 0] }}
-                  transition={{ repeat: Infinity, duration: 9, ease: "easeInOut" }}
-                />
+            <div className="relative flex justify-center py-10">
+              <motion.div
+                aria-hidden
+                className="absolute top-1/2 left-1/2 h-72 w-72 md:h-80 md:w-80 rounded-[2rem] border-2 border-primary/25"
+                style={{ x: "-50%", y: "-50%" }}
+                animate={reduceMotion ? undefined : { rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 26, ease: "linear" }}
+              />
 
-                <motion.div
-                  whileHover={{ scale: 1.02, rotate: -1 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                  className="relative h-72 w-72 md:h-80 md:w-80 overflow-hidden rounded-[1.75rem] shadow-2xl ring-1 ring-border/60"
-                >
-                  {about?.profileImage ? (
-                    <SafeImage
-                      src={about.profileImage}
-                      alt={about.name || "Profile"}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 288px, 320px"
-                      fallback={imageFallback}
-                    />
-                  ) : (
-                    imageFallback
-                  )}
-                </motion.div>
-              </div>
+              {about?.profileImage ? (
+                <div className="relative w-72 h-72 md:w-80 md:h-80 rounded-2xl overflow-hidden shadow-lg">
+                  <SafeImage
+                    src={about.profileImage}
+                    alt={about.name || "Profile"}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 288px, 320px"
+                    fallback={imageFallback}
+                  />
+                </div>
+              ) : (
+                <div className="relative">{imageFallback}</div>
+              )}
             </div>
           </MotionWrapper>
 

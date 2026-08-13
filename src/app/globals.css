@@ -85,6 +85,11 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
+    /* framer-motion's `useScroll({ target })` measures against
+       `document.scrollingElement` — i.e. <html> — and needs it to be
+       non-static to resolve offsets. Relative positioning changes no layout
+       and still leaves `position: fixed` anchored to the viewport. */
+    position: relative;
   }
 }
 
@@ -259,6 +264,18 @@
   background-size: 56px 56px;
   -webkit-mask-image: radial-gradient(ellipse at center, #000 5%, transparent 70%);
   mask-image: radial-gradient(ellipse at center, #000 5%, transparent 70%);
+}
+
+/* Applied by CursorFollower once it is actually running. Text inputs keep a
+   caret so typing still feels normal. */
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none;
+}
+.has-custom-cursor input,
+.has-custom-cursor textarea,
+.has-custom-cursor [contenteditable="true"] {
+  cursor: text;
 }
 
 .glow-ring {
