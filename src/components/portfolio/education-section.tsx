@@ -1,8 +1,11 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { GraduationCap } from "lucide-react";
 import { IEducation } from "@/types";
 import { SectionHeading } from "./section-heading";
 import { MotionWrapper } from "@/components/shared/motion-wrapper";
+import { TimelineDot, TimelineTrack } from "@/components/shared/timeline-track";
 import { formatDate } from "@/lib/utils";
 import { sanitizeRichText } from "@/lib/sanitize";
 
@@ -11,60 +14,76 @@ interface EducationSectionProps {
 }
 
 export function EducationSection({ education }: EducationSectionProps) {
+  if (education.length === 0) return null;
+
   return (
-    <section id="education" className="py-20">
+    <section id="education" className="relative py-24">
       <div className="max-w-4xl mx-auto px-4">
-        <SectionHeading title="Education" />
+        <SectionHeading
+          eyebrow="Academics"
+          title="Education"
+          subtitle="Formal training behind the engineering work."
+        />
 
-        <div className="relative">
-          {/* Vertical timeline line */}
-          <div className="absolute left-4 md:left-1/2 md:-translate-x-px top-0 bottom-0 w-0.5 bg-border" />
-
+        <TimelineTrack>
           <div className="space-y-12">
-            {education.map((edu, index) => (
-              <MotionWrapper
-                key={edu._id}
-                direction="up"
-                delay={index * 0.1}
-              >
-                <div className="relative flex items-start md:justify-between md:flex-row">
-                  {/* Timeline dot */}
-                  <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-primary border-2 border-background z-10 mt-2" />
+            {education.map((edu, index) => {
+              const isLeft = index % 2 === 0;
 
-                  {/* Content card */}
+              return (
+                <MotionWrapper key={edu._id} direction={isLeft ? "left" : "right"}>
                   <div
-                    className={`ml-10 md:ml-0 md:w-[calc(50%-2rem)] rounded-lg border border-border bg-card p-6 text-card-foreground shadow-sm ${
-                      index % 2 === 0 ? "md:mr-auto" : "md:ml-auto"
+                    className={`relative flex items-start md:justify-between ${
+                      isLeft ? "md:flex-row" : "md:flex-row-reverse"
                     }`}
                   >
-                    <h3 className="text-lg font-bold text-foreground">{edu.institution}</h3>
-                    <p className="text-primary font-medium">{edu.degree}</p>
-                    <p className="text-sm text-muted-foreground">{edu.field}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {formatDate(edu.startDate)} —{" "}
-                      {edu.current
-                        ? "Present"
-                        : edu.endDate
-                        ? formatDate(edu.endDate)
-                        : ""}
-                    </p>
-                    {edu.grade && (
-                      <p className="text-sm mt-2 text-card-foreground">
-                        <span className="font-medium">Grade:</span> {edu.grade}
+                    <TimelineDot />
+
+                    <motion.div
+                      whileHover={{ y: -4 }}
+                      transition={{ type: "spring", stiffness: 320, damping: 24 }}
+                      className={`ml-10 rounded-2xl border border-border/70 bg-card p-6 text-card-foreground shadow-sm transition-colors hover:border-primary/40 hover:shadow-[0_22px_50px_-26px_hsl(var(--primary)/0.55)] md:ml-0 md:w-[calc(50%_-_2.25rem)] ${
+                        isLeft ? "md:mr-auto" : "md:ml-auto"
+                      }`}
+                    >
+                      <div className="mb-3 inline-flex rounded-xl bg-primary/10 p-2 text-primary">
+                        <GraduationCap className="h-5 w-5" />
+                      </div>
+
+                      <h3 className="text-lg font-bold text-foreground">{edu.institution}</h3>
+                      <p className="font-medium text-primary">{edu.degree}</p>
+                      <p className="text-sm text-muted-foreground">{edu.field}</p>
+
+                      <p className="mt-2 text-sm font-medium text-muted-foreground">
+                        {formatDate(edu.startDate)} —{" "}
+                        {edu.current
+                          ? "Present"
+                          : edu.endDate
+                          ? formatDate(edu.endDate)
+                          : ""}
                       </p>
-                    )}
-                    {edu.description && (
-                      <div
-                        className="prose prose-sm dark:prose-invert mt-3 max-w-none"
-                        dangerouslySetInnerHTML={{ __html: sanitizeRichText(edu.description) }}
-                      />
-                    )}
+
+                      {edu.grade && (
+                        <p className="mt-2 text-sm text-card-foreground">
+                          <span className="font-medium">Grade:</span> {edu.grade}
+                        </p>
+                      )}
+
+                      {edu.description && (
+                        <div
+                          className="prose prose-sm dark:prose-invert mt-3 max-w-none"
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeRichText(edu.description),
+                          }}
+                        />
+                      )}
+                    </motion.div>
                   </div>
-                </div>
-              </MotionWrapper>
-            ))}
+                </MotionWrapper>
+              );
+            })}
           </div>
-        </div>
+        </TimelineTrack>
       </div>
     </section>
   );

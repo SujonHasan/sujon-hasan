@@ -138,7 +138,7 @@ export async function saveThemeSettingsSingleton(data: ThemeSettingsShape) {
     : null;
 }
 
-function hexToHslString(hex: string) {
+function hexToHsl(hex: string) {
   const value = hex.replace("#", "");
   const r = Number.parseInt(value.slice(0, 2), 16) / 255;
   const g = Number.parseInt(value.slice(2, 4), 16) / 255;
@@ -169,9 +169,33 @@ function hexToHslString(hex: string) {
     h /= 6;
   }
 
-  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100),
+  };
 }
 
+function hsl(h: number, s: number, l: number) {
+  return `${h} ${clamp(s, 0, 100)}% ${clamp(l, 0, 100)}%`;
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, Math.round(value)));
+}
+
+function hexToHslString(hex: string) {
+  const { h, s, l } = hexToHsl(hex);
+  return hsl(h, s, l);
+}
+
+function getRadius(radiusScale: ThemeRadiusScale) {
+  return radiusScale === "soft" ? "1rem" : radiusScale === "sharp" ? "0.2rem" : "0.65rem";
+}
+
+/**
+ * Light-mode palette derived directly from the admin colour pickers.
+ */
 export function getThemeCssVariables(input?: Partial<IThemeSettings> | null) {
   const theme = normalizeThemeSettings(input);
 
@@ -193,7 +217,73 @@ export function getThemeCssVariables(input?: Partial<IThemeSettings> | null) {
     "--border": hexToHslString(theme.accentColor),
     "--input": hexToHslString(theme.accentColor),
     "--ring": hexToHslString(theme.primaryColor),
-    "--radius":
-      theme.radiusScale === "soft" ? "1rem" : theme.radiusScale === "sharp" ? "0.2rem" : "0.65rem",
+    "--radius": getRadius(theme.radiusScale),
   } as Record<string, string>;
+}
+
+/**
+ * Dark counterpart of the same palette. The admin only picks light colours, so
+ * the dark surfaces are derived from those hues: lightness is inverted while
+ * hue and (a damped) saturation are preserved, which keeps the brand identity
+ * recognisable without washing the page out.
+ */
+export function getThemeDarkCssVariables(input?: Partial<IThemeSettings> | null) {
+  const theme = normalizeThemeSettings(input);
+
+  const primary = hexToHsl(theme.primaryColor);
+  const background = hexToHsl(theme.backgroundColor);
+
+  // Brand colour needs to stay readable against a near-black background.
+  const darkPrimary = hsl(primary.h, clamp(primary.s, 45, 92), clamp(primary.l + 12, 52, 68));
+
+  // Light backgrounds are usually white or near-white, so their own hue is
+  // meaningless (white reads as hue 0 and would tint every dark surface red).
+  // Take the hue from the brand colour instead and keep saturation low so the
+  // surfaces stay neutral rather than coloured.
+  const surfaceHue = background.s < 8 ? primary.h : background.h;
+  const surfaceSat = clamp(primary.s * 0.22, 6, 22);
+  const textSat = clamp(surfaceSat * 0.7, 0, 16);
+
+  return {
+    "--background": hsl(surfaceHue, surfaceSat, 5),
+    "--foreground": hsl(surfaceHue, textSat, 97),
+    "--card": hsl(surfaceHue, surfaceSat, 9),
+    "--card-foreground": hsl(surfaceHue, textSat, 97),
+    "--popover": hsl(surfaceHue, surfaceSat, 9),
+    "--popover-foreground": hsl(surfaceHue, textSat, 97),
+    "--primary": darkPrimary,
+    "--primary-foreground": hsl(surfaceHue, textSat, 8),
+    "--secondary": hsl(surfaceHue, surfaceSat, 16),
+    "--secondary-foreground": hsl(surfaceHue, textSat, 97),
+    "--muted": hsl(surfaceHue, surfaceSat, 16),
+    "--muted-foreground": hsl(surfaceHue, clamp(textSat + 6, 0, 24), 66),
+    "--accent": hsl(surfaceHue, surfaceSat, 16),
+    "--accent-foreground": hsl(surfaceHue, textSat, 97),
+    "--border": hsl(surfaceHue, surfaceSat, 18),
+    "--input": hsl(surfaceHue, surfaceSat, 18),
+    "--ring": darkPrimary,
+    "--radius": getRadius(theme.radiusScale),
+  } as Record<string, string>;
+}
+
+/**
+ * Renders both palettes as a scoped stylesheet.
+ *
+ * These used to be applied as an inline `style` attribute, which beat the
+ * `.dark` class rules in `globals.css` and left dark mode showing light
+ * surfaces. Emitting real rules lets `.dark` win as intended.
+ */
+export function getThemeScopedCss(
+  input: Partial<IThemeSettings> | null | undefined,
+  scopeSelector = "[data-portfolio-scope]"
+) {
+  const toBlock = (vars: Record<string, string>) =>
+    Object.entries(vars)
+      .map(([key, value]) => `${key}:${value};`)
+      .join("");
+
+  return [
+    `${scopeSelector}{${toBlock(getThemeCssVariables(input))}}`,
+    `.dark ${scopeSelector}{${toBlock(getThemeDarkCssVariables(input))}}`,
+  ].join("");
 }

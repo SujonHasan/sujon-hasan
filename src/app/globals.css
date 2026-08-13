@@ -82,6 +82,213 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Motion primitives
+   Every animation below is disabled for visitors who ask for reduced motion.
+--------------------------------------------------------------------------- */
+
+@keyframes portfolio-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(3%, -6%, 0) scale(1.06);
+  }
+  66% {
+    transform: translate3d(-4%, 4%, 0) scale(0.96);
+  }
+}
+
+@keyframes portfolio-gradient-pan {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes portfolio-shimmer {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+
+@keyframes portfolio-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes portfolio-pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Slow-drifting colour blobs behind the hero. */
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  will-change: transform;
+  animation: portfolio-float 18s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Animated gradient text used for the name / section accents. */
+.text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    hsl(var(--primary)),
+    hsl(var(--primary) / 0.65),
+    hsl(var(--foreground)),
+    hsl(var(--primary))
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: portfolio-gradient-pan 7s ease-in-out infinite;
+}
+
+/* Frosted card surface used across sections. */
+.glass-panel {
+  background-color: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid hsl(var(--border) / 0.7);
+}
+
+/* Sweeping highlight that runs across a card on hover. */
+.shimmer-on-hover {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.shimmer-on-hover::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 45%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    hsl(var(--primary) / 0.14),
+    transparent
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+  z-index: 1;
+}
+.shimmer-on-hover:hover::after {
+  animation: portfolio-shimmer 0.9s ease-out;
+}
+
+/* Mouse-following spotlight. --x / --y are set from JS. */
+.spotlight-card {
+  position: relative;
+}
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    340px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    hsl(var(--primary) / 0.16),
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+/* Infinite logo/tech strip. */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: portfolio-marquee 32s linear infinite;
+}
+.marquee-viewport:hover .marquee-track {
+  animation-play-state: paused;
+}
+.marquee-viewport {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+/* Faint grid, faded out towards the edges — used behind the hero. */
+.hero-grid {
+  background-image:
+    linear-gradient(hsl(var(--foreground) / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 5%, transparent 70%);
+  mask-image: radial-gradient(ellipse at center, #000 5%, transparent 70%);
+}
+
+.glow-ring {
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.25), 0 18px 50px -18px hsl(var(--primary) / 0.55);
+}
+
+.pulse-ring {
+  animation: portfolio-pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .aurora-blob,
+  .text-gradient,
+  .marquee-track,
+  .pulse-ring,
+  .shimmer-on-hover::after {
+    animation: none !important;
+  }
+  .text-gradient {
+    color: hsl(var(--primary));
+    -webkit-text-fill-color: currentColor;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
 }
 
 [data-portfolio-background="glow"] {

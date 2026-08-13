@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { motion } from "framer-motion";
 import { IContact } from "@/types";
 import { SectionHeading } from "./section-heading";
 import { MotionWrapper } from "@/components/shared/motion-wrapper";
@@ -63,74 +64,85 @@ export function ContactSection({ contact }: ContactSectionProps) {
     }
   };
 
+  const infoCards = [
+    contact?.email && {
+      key: "email",
+      icon: Mail,
+      label: "Email",
+      value: contact.email,
+      href: `mailto:${contact.email}`,
+    },
+    contact?.phone && {
+      key: "phone",
+      icon: Phone,
+      label: "Phone",
+      value: contact.phone,
+      href: `tel:${contact.phone}`,
+    },
+    contact?.address && {
+      key: "address",
+      icon: MapPin,
+      label: "Address",
+      value: contact.address,
+      href: undefined,
+    },
+  ].filter(Boolean) as Array<{
+    key: string;
+    icon: typeof Mail;
+    label: string;
+    value: string;
+    href?: string;
+  }>;
+
   return (
-    <section id="contact" className="py-20">
+    <section id="contact" className="relative py-24">
       <div className="max-w-6xl mx-auto px-4">
-        <SectionHeading title="Get In Touch" />
+        <SectionHeading
+          eyebrow="Contact"
+          title="Get In Touch"
+          subtitle="Have a project in mind? Send a message and I'll reply within 24 hours."
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left: Contact info */}
           <MotionWrapper direction="left">
             <div className="space-y-4">
-              {contact?.email && (
-                <Card>
-                  <CardContent className="flex items-center gap-4 p-4">
-                    <div className="p-2 rounded-md bg-primary/10 text-primary">
-                      <Mail className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Email</p>
-                      <a
-                        href={`mailto:${contact.email}`}
-                        className="font-medium hover:text-primary transition-colors"
-                      >
-                        {contact.email}
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {contact?.phone && (
-                <Card>
-                  <CardContent className="flex items-center gap-4 p-4">
-                    <div className="p-2 rounded-md bg-primary/10 text-primary">
-                      <Phone className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Phone</p>
-                      <a
-                        href={`tel:${contact.phone}`}
-                        className="font-medium hover:text-primary transition-colors"
-                      >
-                        {contact.phone}
-                      </a>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {contact?.address && (
-                <Card>
-                  <CardContent className="flex items-center gap-4 p-4">
-                    <div className="p-2 rounded-md bg-primary/10 text-primary">
-                      <MapPin className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Address</p>
-                      <p className="font-medium">{contact.address}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              {infoCards.map(({ key, icon: Icon, label, value, href }) => (
+                <motion.div
+                  key={key}
+                  whileHover={{ x: 6 }}
+                  transition={{ type: "spring", stiffness: 340, damping: 24 }}
+                >
+                  <Card className="group border-border/70 transition-colors hover:border-primary/40">
+                    <CardContent className="flex items-center gap-4 p-4">
+                      <div className="rounded-xl bg-primary/10 p-2.5 text-primary transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-muted-foreground">{label}</p>
+                        {href ? (
+                          <a
+                            href={href}
+                            className="block truncate font-medium transition-colors hover:text-primary"
+                          >
+                            {value}
+                          </a>
+                        ) : (
+                          <p className="font-medium">{value}</p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
 
               {contact?.availability && (
-                <Card>
+                <Card className="border-emerald-500/30 bg-emerald-500/5">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" />
+                        <span className="pulse-ring absolute inline-flex h-full w-full rounded-full bg-emerald-400" />
+                        <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500" />
                       </span>
                       <span className="font-medium">{contact.availability}</span>
                     </div>
@@ -142,7 +154,7 @@ export function ContactSection({ contact }: ContactSectionProps) {
 
           {/* Right: Contact form */}
           <MotionWrapper direction="right">
-            <Card>
+            <Card className="border-border/70 shadow-sm">
               <CardContent className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
@@ -199,12 +211,19 @@ export function ContactSection({ contact }: ContactSectionProps) {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button
+                    type="submit"
+                    className="group w-full rounded-full py-6 text-base transition-shadow hover:shadow-[0_18px_45px_-14px_hsl(var(--primary)/0.7)]"
+                    disabled={loading}
+                  >
                     {loading ? (
-                      "Sending..."
+                      <>
+                        <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        Sending...
+                      </>
                     ) : (
                       <>
-                        <Send className="h-4 w-4 mr-2" />
+                        <Send className="mr-2 h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5" />
                         Send Message
                       </>
                     )}

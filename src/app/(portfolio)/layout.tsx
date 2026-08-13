@@ -1,11 +1,11 @@
-import type { CSSProperties } from "react";
 import { Navbar } from "@/components/portfolio/navbar";
 import { Footer } from "@/components/portfolio/footer";
 import { connectDB } from "@/lib/db";
 import { getLatestAboutLean } from "@/lib/about";
 import { getPortfolioSettingsLean } from "@/lib/portfolio-settings";
 import { PORTFOLIO_SECTIONS } from "@/lib/portfolio-config";
-import { getThemeCssVariables, getThemeSettingsLean } from "@/lib/theme-settings";
+import { getThemeScopedCss, getThemeSettingsLean } from "@/lib/theme-settings";
+import { IThemeSettings } from "@/types";
 
 export default async function PortfolioLayout({
   children,
@@ -13,23 +13,26 @@ export default async function PortfolioLayout({
   children: React.ReactNode;
 }) {
   let socialLinks;
+  let ownerName: string | undefined;
   let navLinks: Array<{ label: string; href: string }> = [];
   let themePreset = "default";
   let backgroundStyle = "none";
   let showThemeToggle = true;
-  let themeStyle: Record<string, string> = {};
+  let themeSettings: Partial<IThemeSettings> | null = null;
+
   try {
     await connectDB();
-    const [about, settings, themeSettings] = await Promise.all([
+    const [about, settings, theme] = await Promise.all([
       getLatestAboutLean(),
       getPortfolioSettingsLean(),
       getThemeSettingsLean(),
     ]);
     socialLinks = about?.socialLinks;
-    themePreset = themeSettings.themePreset;
-    backgroundStyle = themeSettings.backgroundStyle;
-    showThemeToggle = themeSettings.showThemeToggle;
-    themeStyle = getThemeCssVariables(themeSettings);
+    ownerName = about?.name;
+    themeSettings = theme;
+    themePreset = theme.themePreset;
+    backgroundStyle = theme.backgroundStyle;
+    showThemeToggle = theme.showThemeToggle;
     navLinks = settings.sectionOrder
       .filter((sectionId) => settings.enabledSections.includes(sectionId))
       .map((sectionId) => PORTFOLIO_SECTIONS.find((section) => section.id === sectionId))
@@ -48,13 +51,24 @@ export default async function PortfolioLayout({
 
   return (
     <div
+      id="top"
+      data-portfolio-scope=""
       data-portfolio-theme={themePreset}
       data-portfolio-background={backgroundStyle}
-      style={themeStyle as CSSProperties}
+      className="min-h-screen bg-background text-foreground"
     >
+      {/* Scoped rules rather than an inline style attribute, so the `.dark`
+          class can still override the palette. */}
+      <style
+        dangerouslySetInnerHTML={{ __html: getThemeScopedCss(themeSettings) }}
+      />
       <Navbar links={navLinks} showThemeToggle={showThemeToggle} />
       <main>{children}</main>
-      <Footer socialLinks={socialLinks as Record<string, string> | undefined} />
+      <Footer
+        socialLinks={socialLinks as Record<string, string> | undefined}
+        navLinks={navLinks}
+        name={ownerName}
+      />
     </div>
   );
 }
