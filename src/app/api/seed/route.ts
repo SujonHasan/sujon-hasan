@@ -26,16 +26,32 @@ async function seed() {
     );
   }
 
+  // Never hard-code the admin password: this file is committed, so any literal
+  // here is a published credential for whatever environment ran the seed.
+  const adminEmail = process.env.SEED_ADMIN_EMAIL;
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          "Set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD before seeding the admin user.",
+      },
+      { status: 400 }
+    );
+  }
+
   try {
     await connectDB();
 
     // Create admin user
-    const existingUser = await User.findOne({ email: "sujonhasan171@gmail.com" });
+    const existingUser = await User.findOne({ email: adminEmail });
     if (!existingUser) {
       await User.create({
         name: "Md. Sujon Hasan",
-        email: "sujonhasan171@gmail.com",
-        password: "admin123456",
+        email: adminEmail,
+        password: adminPassword,
         role: "admin",
       });
     }

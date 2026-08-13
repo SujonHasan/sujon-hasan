@@ -6,39 +6,62 @@ import { connectDB } from "@/lib/db";
 
 export const runtime = "nodejs";
 
-const ALLOWED_TYPES: Record<string, string> = {
+const IMAGE_TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
   "image/gif": "gif",
 };
-const ALLOWED_FOLDERS = ["projects", "profile", "certifications", "seo"];
-const MAX_SIZE = 4 * 1024 * 1024; // 4MB
+
+const IMAGE_RULE = {
+  types: IMAGE_TYPES,
+  label: "JPEG, PNG, WebP, GIF",
+  maxSize: 4 * 1024 * 1024,
+};
+
+/**
+ * Accepted types are per folder rather than global, so the resume slot cannot
+ * be used to smuggle a PDF into an image field — or the reverse.
+ */
+const FOLDER_RULES: Record<string, typeof IMAGE_RULE> = {
+  projects: IMAGE_RULE,
+  profile: IMAGE_RULE,
+  certifications: IMAGE_RULE,
+  seo: IMAGE_RULE,
+  resume: {
+    types: { "application/pdf": "pdf" },
+    label: "PDF",
+    maxSize: 8 * 1024 * 1024,
+  },
+};
+
+const DEFAULT_FOLDER = "projects";
 
 export async function POST(req: NextRequest) {
   return withAuth(req, async (request, userId) => {
     try {
       const formData = await request.formData();
       const file = formData.get("file") as File;
-      const rawFolder = (formData.get("folder") as string) || "projects";
+      const rawFolder = (formData.get("folder") as string) || DEFAULT_FOLDER;
 
       // Prevent path traversal - only allow whitelisted folder names
-      const folder = ALLOWED_FOLDERS.includes(rawFolder) ? rawFolder : "projects";
+      const folder = rawFolder in FOLDER_RULES ? rawFolder : DEFAULT_FOLDER;
+      const rule = FOLDER_RULES[folder];
 
       if (!file) {
         return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
       }
 
-      if (!ALLOWED_TYPES[file.type]) {
+      if (!rule.types[file.type]) {
         return NextResponse.json(
-          { success: false, error: "Invalid file type. Allowed: JPEG, PNG, WebP, GIF" },
+          { success: false, error: `Invalid file type. Allowed: ${rule.label}` },
           { status: 400 }
         );
       }
 
-      if (file.size > MAX_SIZE) {
+      if (file.size > rule.maxSize) {
         return NextResponse.json(
-          { success: false, error: "File too large. Maximum 4MB" },
+          { success: false, error: `File too large. Maximum ${rule.maxSize / (1024 * 1024)}MB` },
           { status: 400 }
         );
       }
@@ -47,7 +70,7 @@ export async function POST(req: NextRequest) {
       const buffer = Buffer.from(bytes);
 
       // Get extension from MIME type, not from user filename
-      const ext = ALLOWED_TYPES[file.type];
+      const ext = rule.types[file.type];
       const filename = `${crypto.randomUUID()}.${ext}`;
       const connection = await connectDB();
       const bucket = new mongoose.mongo.GridFSBucket(connection.connection.db!, {

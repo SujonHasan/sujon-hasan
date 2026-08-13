@@ -33,15 +33,38 @@ export function AuroraBackground() {
     if (reduceMotion) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
 
+    // Measuring inside the mousemove handler would force a synchronous layout
+    // on every single event. The section only moves on scroll or resize, so
+    // cache its box and refresh it from those instead.
+    let bounds = ref.current?.getBoundingClientRect() ?? null;
+    let measureFrame = 0;
+
+    const remeasure = () => {
+      measureFrame = 0;
+      bounds = ref.current?.getBoundingClientRect() ?? null;
+    };
+
+    const scheduleRemeasure = () => {
+      if (measureFrame) return;
+      measureFrame = requestAnimationFrame(remeasure);
+    };
+
     const handleMove = (event: MouseEvent) => {
-      const bounds = ref.current?.getBoundingClientRect();
       if (!bounds) return;
       pointerX.set(event.clientX - bounds.left);
       pointerY.set(event.clientY - bounds.top);
     };
 
     window.addEventListener("mousemove", handleMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMove);
+    window.addEventListener("scroll", scheduleRemeasure, { passive: true });
+    window.addEventListener("resize", scheduleRemeasure, { passive: true });
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("scroll", scheduleRemeasure);
+      window.removeEventListener("resize", scheduleRemeasure);
+      if (measureFrame) cancelAnimationFrame(measureFrame);
+    };
   }, [pointerX, pointerY, reduceMotion]);
 
   return (

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { ResumeUpload } from "@/components/admin/resume-upload";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { FormSkeleton } from "@/components/admin/loading-skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -199,6 +200,31 @@ export default function AboutPage() {
           <CardHeader><CardTitle>Resume</CardTitle></CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
+              <Label>Your Own Resume (optional)</Label>
+              <ResumeUpload
+                value={form.resumeUrl}
+                onChange={(v) => setForm({ ...form, resumeUrl: v })}
+              />
+              <p className="text-sm text-muted-foreground">
+                {form.resumeUrl
+                  ? "This file is what visitors get from “Download Resume”. Remove it to fall back to the template below."
+                  : "Nothing uploaded — “Download Resume” will generate a PDF from the template selected below."}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Or link an external resume</Label>
+              <Input
+                value={form.resumeUrl}
+                onChange={(e) => setForm({ ...form, resumeUrl: e.target.value })}
+                placeholder="https://drive.google.com/..."
+              />
+              <p className="text-sm text-muted-foreground">
+                Same slot as the upload above — paste a link instead of uploading a file.
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label>Active Resume Template</Label>
               <Select
                 key={form.resumeTemplate}
@@ -221,7 +247,8 @@ export default function AboutPage() {
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                The selected template will auto-generate your resume from portfolio data and power the frontend download button.
+                Used only when no resume is uploaded or linked above. Builds the PDF from your
+                portfolio data.
               </p>
             </div>
 
@@ -264,17 +291,6 @@ export default function AboutPage() {
               })}
             </div>
 
-            <div className="space-y-2">
-              <Label>Legacy Resume URL</Label>
-              <Input
-                value={form.resumeUrl}
-                onChange={(e) => setForm({ ...form, resumeUrl: e.target.value })}
-                placeholder="Optional fallback external resume link"
-              />
-              <p className="text-sm text-muted-foreground">
-                Optional fallback only. The generated PDF template is used first.
-              </p>
-            </div>
           </CardContent>
         </Card>
 
