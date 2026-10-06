@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { GalleryUpload } from "@/components/admin/gallery-upload";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -26,8 +27,12 @@ export default function NewProjectPage() {
     shortDescription: "",
     description: "",
     thumbnail: "",
+    images: [] as string[],
     technologies: "",
     category: "web",
+    client: "",
+    role: "",
+    year: "",
     liveUrl: "",
     githubUrl: "",
     featured: false,
@@ -92,6 +97,10 @@ export default function NewProjectPage() {
               <Label>Thumbnail</Label>
               <ImageUpload value={form.thumbnail} onChange={(v) => setForm({ ...form, thumbnail: v })} />
             </div>
+            <div className="mt-6 space-y-2">
+              <Label>Gallery (shown on the project detail page)</Label>
+              <GalleryUpload value={form.images} onChange={(v) => setForm({ ...form, images: v })} />
+            </div>
           </CardContent>
         </Card>
 
@@ -112,6 +121,7 @@ export default function NewProjectPage() {
                     <SelectItem value="frontend">Frontend</SelectItem>
                     <SelectItem value="fullstack">Full Stack</SelectItem>
                     <SelectItem value="backend">Backend</SelectItem>
+                    <SelectItem value="ecommerce">E-Commerce</SelectItem>
                     <SelectItem value="mobile">Mobile</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
@@ -126,6 +136,20 @@ export default function NewProjectPage() {
                     <SelectItem value="draft">Draft</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Client</Label>
+                <Input value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} placeholder="Company or personal" />
+              </div>
+              <div className="space-y-2">
+                <Label>My Role</Label>
+                <Input value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="Full Stack Developer" />
+              </div>
+              <div className="space-y-2">
+                <Label>Year</Label>
+                <Input value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} placeholder="2026" />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

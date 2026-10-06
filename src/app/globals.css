@@ -342,6 +342,32 @@
 .prose code { @apply bg-muted px-1.5 py-0.5 rounded text-sm; }
 .prose pre { @apply bg-muted p-4 rounded-lg overflow-x-auto my-4; }
 
+/* Editorial write-up on the project case-study page */
+.project-article {
+  @apply text-[1.0625rem] leading-[1.75] text-foreground/85;
+}
+.project-article > :first-child { @apply mt-0; }
+.project-article h1,
+.project-article h2,
+.project-section-title { @apply mb-4 mt-14 text-xl font-semibold tracking-[-0.01em] text-foreground md:text-2xl; }
+.project-section-title { @apply mt-0 mb-6; }
+.project-article h3 { @apply mb-2 mt-8 text-base font-semibold text-foreground; }
+.project-article h4 { @apply mb-2 mt-6 text-base font-medium text-foreground; }
+.project-article p { @apply mb-5; }
+.project-article p:empty { @apply hidden; }
+.project-article strong { @apply font-medium text-foreground; }
+.project-article em { @apply italic; }
+.project-article a { @apply text-foreground underline decoration-border underline-offset-4 hover:decoration-foreground; }
+.project-article ul { @apply mb-6 list-disc space-y-2 pl-5 marker:text-muted-foreground; }
+.project-article ol { @apply mb-6 list-decimal space-y-2 pl-5 marker:text-muted-foreground; }
+.project-article li { @apply pl-1; }
+.project-article li > p { @apply mb-0; }
+.project-article blockquote { @apply my-8 border-l-2 border-foreground pl-5 text-foreground; }
+.project-article blockquote p { @apply mb-0; }
+.project-article code { @apply rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em]; }
+.project-article pre { @apply my-6 overflow-x-auto rounded-lg bg-muted p-4; }
+.project-article pre code { @apply bg-transparent p-0; }
+
 /* Tiptap editor styles */
 .tiptap {
   @apply min-h-[200px] outline-none;
@@ -363,4 +389,16 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-muted-foreground/50;
+}
+
+/* Signature logo: wipe in left-to-right on load, as if being written. */
+@keyframes signature-write {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.signature-draw {
+  animation: signature-write 1.4s cubic-bezier(0.65, 0, 0.35, 1) 0.2s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .signature-draw { animation: none; }
 }

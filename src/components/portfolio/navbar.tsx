@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import {
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { ScrollProgress } from "@/components/shared/scroll-progress";
 import { cn } from "@/lib/utils";
+import { Signature } from "@/components/shared/logo";
 
 interface NavbarLink {
   label: string;
@@ -29,6 +31,10 @@ export function Navbar({ links, showThemeToggle = true }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  // Ignore the last observed section once we leave the home page, otherwise the
+  // highlight sticks to whatever was active before navigating to a case study.
+  const currentSection = pathname === "/" ? activeSection : "";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,7 +46,10 @@ export function Navbar({ links, showThemeToggle = true }: NavbarProps) {
   }, []);
 
   useEffect(() => {
-    const sectionIds = links.map((link) => link.href.replace("#", ""));
+    // Section anchors only exist on the home page.
+    if (pathname !== "/") return;
+
+    const sectionIds = links.map((link) => link.href.replace(/^\/?#/, ""));
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -58,7 +67,7 @@ export function Navbar({ links, showThemeToggle = true }: NavbarProps) {
     });
 
     return () => observer.disconnect();
-  }, [links]);
+  }, [links, pathname]);
 
   return (
     <>
@@ -79,18 +88,16 @@ export function Navbar({ links, showThemeToggle = true }: NavbarProps) {
           {/* Logo */}
           <Link
             href="/"
-            className="group flex items-center gap-2 text-xl font-bold tracking-tight"
+            aria-label="Sujon Hasan — home"
+            className="-ml-1 flex items-center text-foreground transition-colors hover:text-primary"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm text-primary-foreground shadow-sm transition-transform group-hover:scale-110 group-hover:rotate-6">
-              SH
-            </span>
-            <span className="transition-opacity group-hover:opacity-80">Sujon Hasan</span>
+            <Signature animate className="h-11" />
           </Link>
 
           {/* Desktop nav */}
           <ul className="hidden items-center gap-1 md:flex">
             {links.map((link) => {
-              const isActive = activeSection === link.href.replace("#", "");
+              const isActive = currentSection === link.href.replace(/^\/?#/, "");
               return (
                 <li key={link.href} className="relative">
                   <a
@@ -142,7 +149,7 @@ export function Navbar({ links, showThemeToggle = true }: NavbarProps) {
                       transition={{ delay: index * 0.05, duration: 0.3 }}
                       className={cn(
                         "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-primary",
-                        activeSection === link.href.replace("#", "")
+                        currentSection === link.href.replace(/^\/?#/, "")
                           ? "bg-accent text-primary"
                           : "text-muted-foreground"
                       )}

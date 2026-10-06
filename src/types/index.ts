@@ -78,6 +78,9 @@ export interface IProject {
   images: string[];
   technologies: string[];
   category: string;
+  client: string;
+  role: string;
+  year: string;
   liveUrl: string;
   githubUrl: string;
   featured: boolean;

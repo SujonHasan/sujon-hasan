@@ -3,6 +3,7 @@ import { ArrowUp, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GithubIcon, LinkedinIcon, FacebookIcon, TwitterIcon } from "@/components/shared/icons";
 import { sanitizeUrl } from "@/lib/sanitize";
+import { Signature } from "@/components/shared/logo";
 
 interface FooterProps {
   socialLinks?: {
@@ -51,11 +52,12 @@ export function Footer({ socialLinks, navLinks = [], name }: FooterProps) {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
           {/* Brand */}
           <div>
-            <Link href="/" className="flex items-center gap-2 text-lg font-bold">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm text-primary-foreground">
-                SH
-              </span>
-              {displayName}
+            <Link
+              href="/"
+              aria-label={`${displayName} — home`}
+              className="inline-flex text-foreground transition-colors hover:text-primary"
+            >
+              <Signature className="h-14" />
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Full Stack Developer building fast, scalable web applications for

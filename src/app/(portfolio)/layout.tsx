@@ -40,13 +40,13 @@ export default async function PortfolioLayout({
       .filter((section): section is NonNullable<typeof section> => Boolean(section?.anchor))
       .map((section) => ({
         label: section.navLabel || section.label,
-        href: `#${section.anchor}`,
+        href: `/#${section.anchor}`,
       }));
   } catch {
     socialLinks = undefined;
     navLinks = PORTFOLIO_SECTIONS.filter((section) => section.anchor).map((section) => ({
       label: section.navLabel || section.label,
-      href: `#${section.anchor}`,
+      href: `/#${section.anchor}`,
     }));
   }
 

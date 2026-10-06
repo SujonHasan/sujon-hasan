@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
+import { LogoMark } from "@/components/shared/logo";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -65,9 +66,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <Link href="/admin" className="flex items-center gap-2" onClick={onClose}>
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">SH</span>
-            </div>
+            <LogoMark className="h-8 w-8" />
             <span className="font-semibold text-lg">Admin Panel</span>
           </Link>
           <Button

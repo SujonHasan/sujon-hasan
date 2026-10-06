@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { GithubIcon } from "@/components/shared/icons";
 import { IProject } from "@/types";
@@ -47,6 +47,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
             const githubUrl = sanitizeUrl(project.githubUrl);
             const visibleTech = project.technologies.slice(0, MAX_VISIBLE_TECH);
             const hiddenTechCount = project.technologies.length - visibleTech.length;
+            const detailHref = `/projects/${project.slug || project._id}`;
 
             return (
               <StaggerItem key={project._id} className="h-full">
@@ -56,6 +57,14 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                     transition={{ type: "spring", stiffness: 320, damping: 24 }}
                     className="shimmer-on-hover group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-shadow duration-300 hover:border-primary/40 hover:shadow-[0_28px_60px_-24px_hsl(var(--primary)/0.45)]"
                   >
+                    {/* Whole-card link to the case study. Sits under the
+                        external action buttons, which have a higher z-index. */}
+                    <Link
+                      href={detailHref}
+                      aria-label={`Read the ${project.title} case study`}
+                      className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    />
+
                     {/* Cover */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-muted">
                       {project.thumbnail ? (
@@ -84,7 +93,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                       {/* Darkening veil that reveals the action buttons */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                      <div className="absolute inset-x-0 bottom-0 flex translate-y-4 items-center gap-2 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                      <div className="absolute inset-x-0 bottom-0 z-20 flex translate-y-4 items-center gap-2 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                         {liveUrl && (
                           <Link
                             href={liveUrl}
@@ -134,7 +143,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                         {project.shortDescription}
                       </p>
 
-                      <div className="mt-auto flex flex-wrap gap-1.5">
+                      <div className="mb-4 flex flex-wrap gap-1.5">
                         {visibleTech.map((tech) => (
                           <Badge
                             key={tech}
@@ -150,6 +159,11 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                           </Badge>
                         )}
                       </div>
+
+                      <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+                        View case study
+                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                      </span>
                     </div>
                   </motion.article>
                 </Spotlight>
